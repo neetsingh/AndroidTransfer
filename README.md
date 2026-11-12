@@ -2,16 +2,64 @@
 
 A native macOS app for browsing an Android device over USB MTP and saving individual files to your Mac. It does not require USB debugging or an Android app. macOS 13 or later is required.
 
-## Setup and run
+## Install on another Mac
 
-Install Apple's Command Line Tools and [Homebrew](https://brew.sh/), then:
+The target Mac needs macOS 13 or later and a build whose executable **and bundled libraries** support its processor and macOS version. A compatible app bundle does not require Homebrew, Swift, or libmtp to be installed on the target Mac.
+
+### Install a shared app bundle
+
+1. Obtain `Android Transfer.zip` from someone you trust who has built the app using the steps below. The private GitHub repository contains source code, not a prebuilt download; you need repository access to build from source.
+2. Double-click the ZIP in Finder, then drag `Android Transfer.app` to **Applications**.
+3. Open it from **Applications**. The app is ad-hoc signed, not notarized, so macOS may block its first launch. If you trust the source, try opening it once, then go to **System Settings > Privacy & Security**, select **Open Anyway**, and confirm. Do not bypass a malware warning or open a bundle you do not trust.
+4. Connect an Android phone and follow the instructions in [Use](#use).
+
+To uninstall, quit the app and drag it from **Applications** to the Trash. To also remove its cached thumbnails and locations, remove `~/Library/Caches/local.androidtransfer.app`.
+
+### Build a bundle to share
+
+On a Mac with access to this private repository, install Apple's Command Line Tools and [Homebrew](https://brew.sh/). Then clone and build:
 
 ```sh
+git clone https://github.com/neetsingh/AndroidTransfer.git
+cd AndroidTransfer
 brew install libmtp pkgconf
-swift run AndroidTransfer
+./build-app.sh
 ```
 
-For a clickable app bundle, run `./build-app.sh` and open `dist/Android Transfer.app`. The script bundles the locally installed libmtp and libusb libraries, their license texts, and applies an ad-hoc signature. It is not notarized for distribution; the bundled libraries must support the target Mac's architecture and macOS version. Do not enable the App Sandbox: libmtp requires direct USB access.
+GitHub will require authentication for the private repository. The build creates `dist/Android Transfer.app`, bundles the locally installed libmtp and libusb libraries and their license texts, and applies an ad-hoc signature. Review license and redistribution obligations before sharing it.
+
+Build on a Mac with the same processor architecture as the target Mac, and verify all three binaries. `arm64` is Apple silicon; `x86_64` is Intel. The `minos` shown for each binary must not exceed the target's macOS version:
+
+```sh
+for binary in \
+  "dist/Android Transfer.app/Contents/MacOS/AndroidTransfer" \
+  "dist/Android Transfer.app/Contents/Frameworks/libmtp.9.dylib" \
+  "dist/Android Transfer.app/Contents/Frameworks/libusb-1.0.0.dylib"
+do
+  echo "$binary"
+  lipo -archs "$binary"
+  vtool -show-build "$binary"
+done
+codesign --verify --deep --strict --verbose=2 "dist/Android Transfer.app"
+```
+
+Homebrew libraries may require a newer macOS version than the app's macOS 13 minimum. If any binary is incompatible, build with compatible libraries and toolchain, then test on the target macOS version before sharing. For example, libraries with a macOS 27 minimum will not run on macOS 13.
+
+Create a ZIP that preserves the app bundle, and transfer it to the target Mac:
+
+```sh
+ditto -c -k --sequesterRsrc --keepParent "dist/Android Transfer.app" "dist/Android Transfer.zip"
+```
+
+Do not enable the App Sandbox: libmtp requires direct USB access. For broader distribution without first-launch warnings, use an Apple Developer ID signature and notarization rather than the script's ad-hoc signature.
+
+### Run from source
+
+If you prefer to build directly on the target Mac, follow the build steps above and open `dist/Android Transfer.app`, or run from the source directory:
+
+```sh
+swift run AndroidTransfer
+```
 
 ## Use
 
