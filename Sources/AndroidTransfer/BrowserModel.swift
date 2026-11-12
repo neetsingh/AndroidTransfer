@@ -7,6 +7,13 @@ enum BrowserViewMode: String, CaseIterable {
     case gallery = "Gallery"
 }
 
+enum BrowserSnapshot: CaseIterable {
+    case list
+    case gallery
+    case dateGroups
+    case locationGroups
+}
+
 @MainActor
 final class BrowserModel: ObservableObject {
     @Published var deviceName: String?
@@ -51,9 +58,74 @@ final class BrowserModel: ObservableObject {
     private var listingCache: [String: [DeviceFile]] = [:]
     private var deviceIdentity = ""
 
-    init() {
+    init(snapshot: BrowserSnapshot? = nil) {
+        if let snapshot {
+            configureSnapshot(snapshot)
+        }
         let cache = mediaCache
         Task.detached(priority: .background) { await cache.prune(maxBytes: 300 * 1024 * 1024) }
+    }
+
+    private func configureSnapshot(_ snapshot: BrowserSnapshot) {
+        let now = Date()
+        let imageFiles = [
+            DeviceFile(id: 1, name: "Camera", size: 0, isFolder: true, modifiedAt: now),
+            DeviceFile(id: 2, name: "beach-sunset.jpg", size: 3_145_728, isFolder: false, modifiedAt: now),
+            DeviceFile(id: 3, name: "city-walk.png", size: 1_572_864, isFolder: false, modifiedAt: now.addingTimeInterval(-86_400)),
+            DeviceFile(id: 4, name: "birthday-video.mp4", size: 48_234_496, isFolder: false, modifiedAt: now.addingTimeInterval(-86_400)),
+            DeviceFile(id: 5, name: "voice-note.mp3", size: 2_097_152, isFolder: false, modifiedAt: now.addingTimeInterval(-172_800)),
+            DeviceFile(id: 6, name: "trip-notes.txt", size: 8_192, isFolder: false, modifiedAt: now.addingTimeInterval(-172_800)),
+            DeviceFile(id: 7, name: "shared-photo.jpg", size: 2_621_440, isFolder: false),
+            DeviceFile(id: 8, name: "mountain-trail.heic", size: 4_194_304, isFolder: false, modifiedAt: now.addingTimeInterval(-259_200))
+        ]
+        deviceName = "Pixel 9 Pro (Demo)"
+        storages = [Storage(id: 1, name: "Internal storage", freeBytes: 42_949_672_960)]
+        storage = storages[0]
+        setFiles(imageFiles)
+        status = "\(imageFiles.count) items"
+        locations = [
+            2: .place("Pune, India"),
+            3: .place("Mumbai, India"),
+            7: .unknown
+        ]
+        thumbnails = [
+            2: snapshotImage(color: .systemOrange),
+            3: snapshotImage(color: .systemBlue),
+            7: snapshotImage(color: .systemPurple)
+        ]
+        selectionState.click(2, kind: SelectionClick(command: false, control: false, shift: false),
+                            order: imageFiles.map(\.id))
+        selectionState.click(3, kind: SelectionClick(command: true, control: false, shift: false),
+                            order: imageFiles.map(\.id))
+
+        switch snapshot {
+        case .list:
+            viewMode = .list
+        case .gallery:
+            viewMode = .gallery
+        case .dateGroups:
+            viewMode = .list
+            grouping = .date
+            sort = .dateNewest
+            regroup()
+        case .locationGroups:
+            viewMode = .gallery
+            grouping = .location
+            locationScan = (3, 4)
+            previewScan = (2, 4)
+            regroup()
+        }
+    }
+
+    private func snapshotImage(color: NSColor) -> NSImage {
+        let image = NSImage(size: NSSize(width: 160, height: 110))
+        image.lockFocus()
+        color.setFill()
+        NSBezierPath(roundedRect: NSRect(x: 0, y: 0, width: 160, height: 110), xRadius: 12, yRadius: 12).fill()
+        NSColor.white.withAlphaComponent(0.7).setFill()
+        NSBezierPath(ovalIn: NSRect(x: 58, y: 28, width: 44, height: 44)).fill()
+        image.unlockFocus()
+        return image
     }
 
     var selection: Set<DeviceFile.ID> { selectionState.selected }

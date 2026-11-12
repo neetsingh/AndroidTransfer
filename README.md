@@ -2,6 +2,12 @@
 
 A native macOS app for browsing an Android device over USB MTP and saving individual files to your Mac. It does not require USB debugging or an Android app. macOS 13 or later is required.
 
+### Generated-data preview
+
+This location-grouped gallery preview uses generated demo data and does not require a connected phone.
+
+![Android Transfer gallery preview with generated demo data](./Screenshots/generated-gallery.svg)
+
 ## Install on another Mac
 
 The target Mac needs macOS 13 or later and a build whose executable **and bundled libraries** support its processor and macOS version. A compatible app bundle does not require Homebrew, Swift, or libmtp to be installed on the target Mac.
@@ -159,5 +165,5 @@ Reconnect if the device disconnects or changes USB mode. Folder downloads, multi
 swift test
 ```
 
-Device integration requires a physical Android phone; the automated tests cover the platform-independent file ordering only.
-`swift test` requires Xcode's testing frameworks; Command Line Tools alone may not include them.
+The UI snapshot test renders the list, gallery, date-grouped and location-grouped screens using generated sample device data; it does not require an Android phone. The rendered PNGs are attached to the test results. Device integration still requires a physical Android phone.
+`swift test` requires Xcode's testing frameworks, `libmtp`, and `pkg-config`; Command Line Tools alone may not include them.

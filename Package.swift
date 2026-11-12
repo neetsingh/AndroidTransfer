@@ -18,6 +18,7 @@ let package = Package(
             name: "AndroidTransfer",
             dependencies: ["CLibMTP", "TransferCore"]
         ),
-        .testTarget(name: "TransferCoreTests", dependencies: ["TransferCore"])
+        .testTarget(name: "TransferCoreTests", dependencies: ["TransferCore"]),
+        .testTarget(name: "AndroidTransferSnapshotTests", dependencies: ["AndroidTransfer", "TransferCore"])
     ]
 )
