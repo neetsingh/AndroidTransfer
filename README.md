@@ -6,6 +6,30 @@ A native macOS app for browsing an Android device over USB MTP and saving indivi
 
 The target Mac needs macOS 13 or later and a build whose executable **and bundled libraries** support its processor and macOS version. A compatible app bundle does not require Homebrew, Swift, or libmtp to be installed on the target Mac.
 
+### Install or update from source
+
+On the Mac where you want to install the app, install [Xcode Command Line Tools](https://developer.apple.com/xcode/resources/) and [Homebrew](https://brew.sh/). Then run:
+
+```sh
+brew install libmtp pkgconf
+git clone https://github.com/neetsingh/AndroidTransfer.git
+cd AndroidTransfer
+./install.sh
+```
+
+GitHub authentication and access to this private repository are required. The script builds the app and installs it to `~/Applications/Android Transfer.app`, without administrator privileges. Open it from your Applications folder and follow the first-launch guidance below if macOS blocks it.
+
+To update an installation, first quit Android Transfer, then run these commands from the cloned repository:
+
+```sh
+git pull --ff-only
+./install.sh --update
+```
+
+The script replaces only an app with the expected bundle identifier and prints the location of a backup in a hidden folder inside `~/Applications`. Check that the update works before removing the backup. It does not update the source automatically, and it does not overwrite an existing app unless `--update` is supplied.
+
+To install a compatible prebuilt bundle without building it, run `./install.sh --app "/path/to/Android Transfer.app"` from a copy of this repository; add `--update` to replace an existing installation. The script verifies the signature, processor architecture and minimum macOS versions of the app and its bundled libraries before installing.
+
 ### Install a shared app bundle
 
 1. Obtain `Android Transfer.zip` from someone you trust who has built the app using the steps below. The private GitHub repository contains source code, not a prebuilt download; you need repository access to build from source.
