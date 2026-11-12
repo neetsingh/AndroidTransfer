@@ -2,11 +2,11 @@
 
 A native macOS app for browsing an Android device over USB MTP and saving individual files to your Mac. It does not require USB debugging or an Android app. macOS 13 or later is required.
 
-### Generated-data preview
+### Screenshot
 
-This location-grouped gallery preview uses generated demo data and does not require a connected phone.
+Browsing a connected Android device in Gallery view.
 
-![Android Transfer gallery preview with generated demo data](./Screenshots/generated-gallery.svg)
+![Android Transfer browsing an Android device in Gallery view](./Screenshots/image_11e30628.jpg)
 
 ## Install on another Mac
 
