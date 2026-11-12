@@ -17,7 +17,7 @@ cd AndroidTransfer
 ./install.sh
 ```
 
-GitHub authentication and access to this private repository are required. The script builds the app and installs it to `~/Applications/Android Transfer.app`, without administrator privileges. Open it from your Applications folder and follow the first-launch guidance below if macOS blocks it.
+The script builds the app and installs it to `~/Applications/Android Transfer.app`, without administrator privileges. Open it from your Applications folder and follow the first-launch guidance below if macOS blocks it.
 
 To update an installation, first quit Android Transfer, then run these commands from the cloned repository:
 
@@ -32,7 +32,7 @@ To install a compatible prebuilt bundle without building it, run `./install.sh -
 
 ### Install a shared app bundle
 
-1. Obtain `Android Transfer.zip` from someone you trust who has built the app using the steps below. The private GitHub repository contains source code, not a prebuilt download; you need repository access to build from source.
+1. Obtain `Android Transfer.zip` from someone you trust who has built the app using the steps below. The GitHub repository contains source code, not a prebuilt download.
 2. Double-click the ZIP in Finder, then drag `Android Transfer.app` to **Applications**.
 3. Open it from **Applications**. The app is ad-hoc signed, not notarized, so macOS may block its first launch. If you trust the source, try opening it once, then go to **System Settings > Privacy & Security**, select **Open Anyway**, and confirm. Do not bypass a malware warning or open a bundle you do not trust.
 4. Connect an Android phone and follow the instructions in [Use](#use).
@@ -41,7 +41,7 @@ To uninstall, quit the app and drag it from **Applications** to the Trash. To al
 
 ### Build a bundle to share
 
-On a Mac with access to this private repository, install Apple's Command Line Tools and [Homebrew](https://brew.sh/). Then clone and build:
+On a Mac, install Apple's Command Line Tools and [Homebrew](https://brew.sh/). Then clone and build:
 
 ```sh
 git clone https://github.com/neetsingh/AndroidTransfer.git
@@ -50,7 +50,7 @@ brew install libmtp pkgconf
 ./build-app.sh
 ```
 
-GitHub will require authentication for the private repository. The build creates `dist/Android Transfer.app`, bundles the locally installed libmtp and libusb libraries and their license texts, and applies an ad-hoc signature. Review license and redistribution obligations before sharing it.
+The build creates `dist/Android Transfer.app`, bundles the locally installed libmtp and libusb libraries and their license texts, and applies an ad-hoc signature. Review license and redistribution obligations before sharing it.
 
 Build on a Mac with the same processor architecture as the target Mac, and verify all three binaries. `arm64` is Apple silicon; `x86_64` is Intel. The `minos` shown for each binary must not exceed the target's macOS version:
 
