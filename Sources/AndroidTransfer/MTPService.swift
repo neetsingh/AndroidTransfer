@@ -32,6 +32,11 @@ final class MTPService {
     private let queue = DispatchQueue(label: "AndroidTransfer.MTP")
     private var device: UnsafeMutablePointer<LIBMTP_mtpdevice_t>?
 
+    static func applyModificationDate(_ date: Date?, to fileURL: URL) throws {
+        guard let date else { return }
+        try FileManager.default.setAttributes([.modificationDate: date], ofItemAtPath: fileURL.path)
+    }
+
     init() { LIBMTP_Init() }
 
     deinit {
@@ -305,6 +310,7 @@ final class MTPService {
             guard result == 0 else {
                 throw MTPFailure(message: self.errorMessage(device, fallback: "Transfer failed. The partial file was not saved."))
             }
+            try Self.applyModificationDate(file.modifiedAt, to: temporary)
             guard fsync(descriptor) == 0 else {
                 throw MTPFailure(message: "Could not flush the downloaded file: \(String(cString: strerror(errno)))")
             }

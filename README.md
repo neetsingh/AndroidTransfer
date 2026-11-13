@@ -23,18 +23,16 @@ cd AndroidTransfer
 ./install.sh
 ```
 
-The script builds the app and installs it to `~/Applications/Android Transfer.app`, without administrator privileges. Open it from your Applications folder and follow the first-launch guidance below if macOS blocks it.
+The script always builds the app from source before installing it to `~/Applications/Android Transfer.app`, without administrator privileges. It requires Homebrew, libmtp, libusb, pkg-config, and the Xcode Command Line Tools; if a dependency is missing, it reports the setup command. Open the installed app from your Applications folder and follow the first-launch guidance below if macOS blocks it.
 
 To update an installation, first quit Android Transfer, then run these commands from the cloned repository:
 
 ```sh
 git pull --ff-only
-./install.sh --update
+./install.sh
 ```
 
-The script replaces only an app with the expected bundle identifier and prints the location of a backup in a hidden folder inside `~/Applications`. Check that the update works before removing the backup. It does not update the source automatically, and it does not overwrite an existing app unless `--update` is supplied.
-
-To install a compatible prebuilt bundle without building it, run `./install.sh --app "/path/to/Android Transfer.app"` from a copy of this repository; add `--update` to replace an existing installation. The script verifies the signature, processor architecture and minimum macOS versions of the app and its bundled libraries before installing.
+The script automatically replaces only an app with the expected bundle identifier and prints the location of a backup in a hidden folder inside `~/Applications`. Check that the update works before removing the backup. It does not update the source automatically. The `--update` option is still accepted but is no longer required.
 
 ### Install a shared app bundle
 
@@ -102,6 +100,8 @@ swift run AndroidTransfer
 Opening storage and folders shows an indeterminate progress bar: MTP does not report a reliable percentage for directory listings. Folders containing recognized photos, videos, or audio open in Gallery view automatically; use the view control to switch back to List. Gallery includes folders and other files. Thumbnails come from the phone when it has one, which is usually only for camera JPEGs with an embedded EXIF thumbnail. For everything else (screenshots, PNG/HEIC/WebP files, shared or edited images and videos), Android Transfer makes a preview on the Mac; progress appears above the grid. Images up to 80 MB are read in full. For videos it usually reads only the first 16 MB and last 8 MB of the file. Videos up to 300 MB are read in full if that isn't enough. An icon is shown when no preview could be made; audio uses a music icon. Gallery shows the current folder, not a recursive library of all media.
 
 Both views show each item's modification date and time as reported by the phone, in your Mac's local time zone; hover for the full date. Items without a date reported by the device show "—".
+
+Downloads preserve the device-reported modification date when available. File contents, including embedded media metadata, are copied without modification.
 
 Use the **Group by** menu to group either view:
 

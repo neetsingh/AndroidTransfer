@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:AndroidTransfer}",
+            "name": "Debug AndroidTransfer",
+            "target": "AndroidTransfer",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug AndroidTransfer"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:AndroidTransfer}",
+            "name": "Release AndroidTransfer",
+            "target": "AndroidTransfer",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release AndroidTransfer"
+        }
+    ]
+}

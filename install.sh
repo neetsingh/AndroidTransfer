@@ -2,25 +2,15 @@
 set -eu
 
 usage() {
-    echo "Usage: ./install.sh [--app PATH] [--update]"
-    echo "Build and install Android Transfer in ~/Applications."
-    echo "  --app PATH  Install an existing Android Transfer.app instead of building."
-    echo "  --update    Replace an existing installation, keeping a backup."
+    echo "Usage: ./install.sh [--update]"
+    echo "Build from source and install Android Transfer in ~/Applications."
+    echo "An existing installation is replaced and backed up automatically."
+    echo "  --update    Accepted for compatibility; replacement is automatic."
 }
 
-app_source=
-update=false
 while [ "$#" -gt 0 ]; do
     case "$1" in
-        --app)
-            if [ "$#" -lt 2 ]; then
-                echo "Missing path after --app." >&2
-                exit 1
-            fi
-            app_source=$2
-            shift 2
-            ;;
-        --update) update=true; shift ;;
+        --update) shift ;;
         -h|--help) usage; exit 0 ;;
         *) echo "Unknown option: $1" >&2; usage >&2; exit 1 ;;
     esac
@@ -39,10 +29,6 @@ check_existing() {
     if [ ! -e "$destination" ] && [ ! -L "$destination" ]; then
         return
     fi
-    if [ "$update" != true ]; then
-        echo "An item already exists at $destination. Quit the app and use --update to replace it." >&2
-        exit 1
-    fi
     if [ -L "$destination" ] || [ ! -d "$destination" ]; then
         echo "Refusing to replace a non-directory or symbolic link: $destination" >&2
         exit 1
@@ -59,14 +45,21 @@ check_existing() {
 
 check_existing
 
-if [ -z "$app_source" ]; then
-    if ! command -v brew >/dev/null 2>&1; then
-        echo "Install Xcode Command Line Tools and Homebrew, then run: brew install libmtp pkgconf" >&2
-        exit 1
-    fi
-    "$script_dir/build-app.sh"
-    app_source="$script_dir/dist/Android Transfer.app"
+if ! command -v brew >/dev/null 2>&1; then
+    echo "A fresh source build requires Homebrew. Install Homebrew, then run: brew install libmtp pkgconf" >&2
+    exit 1
 fi
+
+if ! brew --prefix libmtp >/dev/null 2>&1 || ! brew --prefix libusb >/dev/null 2>&1; then
+    echo "Missing Homebrew build dependencies. Install them with: brew install libmtp pkgconf" >&2
+    exit 1
+fi
+if ! command -v pkg-config >/dev/null 2>&1 || ! pkg-config --exists libmtp; then
+    echo "Missing pkg-config or libmtp package metadata. Install the build dependencies with: brew install libmtp pkgconf" >&2
+    exit 1
+fi
+"$script_dir/build-app.sh"
+app_source="$script_dir/dist/Android Transfer.app"
 
 if [ ! -d "$app_source" ]; then
     echo "App bundle not found: $app_source" >&2
